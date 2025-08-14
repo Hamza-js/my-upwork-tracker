@@ -47,7 +47,7 @@ export default function DashboardPage() {
       }
     }
     load();
-  }, [range.start, range.end]);
+  }, [range.start, range.end, range]);
 
   return (
     <div className="space-y-6">

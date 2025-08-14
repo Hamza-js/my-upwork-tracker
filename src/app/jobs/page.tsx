@@ -1,20 +1,17 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import JobsFilters, { Filters } from "@/components/JobsFilters";
 import JobsTable from "@/components/JobsTable";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Job } from "@/lib/types";
 
 export default function JobsPage() {
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [range, setRange] = useState<{ start: Date; end: Date }>();
-  const [filters, setFilters] = useState<Filters | null>(null);
+  const [jobs, setJobs] = useState<Job[]>([]);
 
   const refetch = useCallback(
     async (f: Filters, r: { start: Date; end: Date }) => {
-      setFilters(f);
-      setRange(r);
       const q = supabase
         .from("jobs")
         .select("*")
@@ -37,14 +34,10 @@ export default function JobsPage() {
       if (f.country) q.ilike("country", `%${f.country}%`);
 
       const { data, error } = await q;
-      if (!error && data) setJobs(data);
+      if (!error && data) setJobs(data as Job[]);
     },
     []
   );
-
-  useEffect(() => {
-    /* initial load handled by JobsFilters useEffect */
-  }, []);
 
   return (
     <div className="space-y-4">
@@ -58,10 +51,10 @@ export default function JobsPage() {
         </Button>
       </div>
 
-      {/* Filters (already glossy inside component) */}
+      {/* Filters */}
       <JobsFilters onChange={refetch} />
 
-      {/* Table (already glossy inside component) */}
+      {/* Table */}
       <JobsTable jobs={jobs} />
     </div>
   );
