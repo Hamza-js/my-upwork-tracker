@@ -39,7 +39,10 @@ export interface Job {
   close_reason: CloseReason;
   closed_at: string | null;
 
-  auto_close_at: string;
+  notes: string | null;
+  applied_with_portfolio: boolean;
+  applied_with_examples: boolean;
+  viewed_by_client: boolean;
 }
 
 export interface DailyInsight {

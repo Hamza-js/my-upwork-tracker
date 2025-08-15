@@ -19,6 +19,10 @@ export type Filters = {
   applied: "all" | "yes" | "no";
   hired: "all" | "me" | "someone_else" | "none";
   closed: "all" | "yes" | "no";
+  /** NEW */
+  portfolio: "all" | "yes" | "no";
+  examples: "all" | "yes" | "no";
+  viewed: "all" | "yes" | "no";
   rangeKey: RangeKey;
 };
 
@@ -31,7 +35,11 @@ const defaultFilters: Filters = {
   applied: "all",
   hired: "all",
   closed: "all",
+  /** NEW */
+  portfolio: "all",
+  examples: "all",
   rangeKey: "this_month",
+  viewed: "all",
 };
 
 export default function JobsFilters({
@@ -176,6 +184,65 @@ export default function JobsFilters({
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="yes">Closed</SelectItem>
             <SelectItem value="no">Open</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <label className="text-sm text-[hsl(var(--muted-foreground))]">
+          Viewed by client
+        </label>
+        <Select
+          value={filters.viewed}
+          onValueChange={(v) => setFilters({ ...filters, viewed: v as any })}
+        >
+          <SelectTrigger className="field w-full mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">No</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* NEW: Applied with portfolio */}
+      <div>
+        <label className="text-sm text-[hsl(var(--muted-foreground))]">
+          With portfolio
+        </label>
+        <Select
+          value={filters.portfolio}
+          onValueChange={(v) => setFilters({ ...filters, portfolio: v as any })}
+        >
+          <SelectTrigger className="field w-full mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">No</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* NEW: Applied with example links */}
+      <div>
+        <label className="text-sm text-[hsl(var(--muted-foreground))]">
+          With example links
+        </label>
+        <Select
+          value={filters.examples}
+          onValueChange={(v) => setFilters({ ...filters, examples: v as any })}
+        >
+          <SelectTrigger className="field w-full mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">No</SelectItem>
           </SelectContent>
         </Select>
       </div>

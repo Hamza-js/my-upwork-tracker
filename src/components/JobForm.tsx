@@ -17,10 +17,17 @@ import { useRouter } from "next/navigation";
 
 const HOURLY_OPTIONS = ["5-10", "10-20", "20-30", "30-50", "50+"];
 
+// Local type augmentation (safe even if you already updated Job in lib/types)
+type JobExtra = {
+  notes?: string | null;
+  applied_with_portfolio?: boolean;
+  applied_with_examples?: boolean;
+};
+
 export default function JobForm({ id }: { id?: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState<Partial<Job>>({
+  const [form, setForm] = useState<Partial<Job> & JobExtra>({
     jtype: "hourly",
     payment: "verified",
     applied: false,
@@ -29,6 +36,11 @@ export default function JobForm({ id }: { id?: string }) {
     got_reply: false,
     hired: false,
     job_closed: false,
+    /* NEW defaults */
+    notes: "",
+    applied_with_portfolio: false,
+    applied_with_examples: false,
+    viewed_by_client: false,
   });
 
   useEffect(() => {
@@ -39,7 +51,7 @@ export default function JobForm({ id }: { id?: string }) {
         .select("*")
         .eq("id", id)
         .single();
-      if (!error && data) setForm(data);
+      if (!error && data) setForm(data as Job & JobExtra);
     }
     load();
   }, [id]);
@@ -66,8 +78,15 @@ export default function JobForm({ id }: { id?: string }) {
       hired: !!form.hired,
       job_closed: !!form.job_closed,
       close_reason: form.close_reason ?? null,
+
+      /* NEW fields */
+      notes: form.notes ?? null,
+      applied_with_portfolio: !!form.applied_with_portfolio,
+      applied_with_examples: !!form.applied_with_examples,
+      viewed_by_client: !!form.viewed_by_client,
     };
 
+    // timeline stamps (unchanged)
     if (payload.applied && !form.applied_at)
       payload.applied_at = new Date().toISOString();
     if (payload.invited && !form.invited_at)
@@ -111,6 +130,7 @@ export default function JobForm({ id }: { id?: string }) {
               placeholder="e.g. Next.js expert for dashboard"
             />
           </div>
+
           <div>
             <label className="text-sm text-[hsl(var(--muted-foreground))]">
               Payment method
@@ -140,6 +160,7 @@ export default function JobForm({ id }: { id?: string }) {
               placeholder="e.g. United States"
             />
           </div>
+
           <div>
             <label className="text-sm text-[hsl(var(--muted-foreground))]">
               USD spent
@@ -294,7 +315,30 @@ export default function JobForm({ id }: { id?: string }) {
             />
           </div>
 
+          {/* NEW: Notes */}
+          <div className="md:col-span-2">
+            <label className="text-sm text-[hsl(var(--muted-foreground))]">
+              Notes
+            </label>
+            <textarea
+              className="field w-full mt-1 min-h-[96px]"
+              value={form.notes ?? ""}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              placeholder="Key details, what you sent, reminders, etc."
+            />
+          </div>
+
           {/* Toggles */}
+          <div className="field px-3 py-2 flex items-center gap-2 rounded-md">
+            <Checkbox
+              id="viewed"
+              checked={!!form.viewed_by_client}
+              onCheckedChange={(v) =>
+                setForm({ ...form, viewed_by_client: !!v })
+              }
+            />
+            <label htmlFor="viewed">Viewed by client</label>
+          </div>
           <div className="field px-3 py-2 flex items-center gap-2 rounded-md">
             <Checkbox
               id="applied"
@@ -303,6 +347,7 @@ export default function JobForm({ id }: { id?: string }) {
             />
             <label htmlFor="applied">Applied</label>
           </div>
+
           <div className="field px-3 py-2 flex items-center gap-2 rounded-md">
             <Checkbox
               id="invited"
@@ -311,6 +356,7 @@ export default function JobForm({ id }: { id?: string }) {
             />
             <label htmlFor="invited">Invited</label>
           </div>
+
           <div className="field px-3 py-2 flex items-center gap-2 rounded-md">
             <Checkbox
               id="interviewing"
@@ -321,6 +367,7 @@ export default function JobForm({ id }: { id?: string }) {
             />
             <label htmlFor="interviewing">Client started interviewing</label>
           </div>
+
           <div className="field px-3 py-2 flex items-center gap-2 rounded-md">
             <Checkbox
               id="reply"
@@ -329,6 +376,7 @@ export default function JobForm({ id }: { id?: string }) {
             />
             <label htmlFor="reply">I got a reply</label>
           </div>
+
           <div className="field px-3 py-2 flex items-center gap-2 rounded-md">
             <Checkbox
               id="hired"
@@ -343,6 +391,7 @@ export default function JobForm({ id }: { id?: string }) {
             />
             <label htmlFor="hired">I got hired</label>
           </div>
+
           <div className="field px-3 py-2 flex items-center gap-2 rounded-md">
             <Checkbox
               id="closed"
@@ -350,6 +399,29 @@ export default function JobForm({ id }: { id?: string }) {
               onCheckedChange={(v) => setForm({ ...form, job_closed: !!v })}
             />
             <label htmlFor="closed">Job closed</label>
+          </div>
+
+          {/* NEW: Application details */}
+          <div className="field px-3 py-2 flex items-center gap-2 rounded-md">
+            <Checkbox
+              id="with-portfolio"
+              checked={!!form.applied_with_portfolio}
+              onCheckedChange={(v) =>
+                setForm({ ...form, applied_with_portfolio: !!v })
+              }
+            />
+            <label htmlFor="with-portfolio">Applied with portfolio</label>
+          </div>
+
+          <div className="field px-3 py-2 flex items-center gap-2 rounded-md">
+            <Checkbox
+              id="with-examples"
+              checked={!!form.applied_with_examples}
+              onCheckedChange={(v) =>
+                setForm({ ...form, applied_with_examples: !!v })
+              }
+            />
+            <label htmlFor="with-examples">Applied with example links</label>
           </div>
 
           <div>
